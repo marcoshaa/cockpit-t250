@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Ténéré 250 — Nextion NX4832F035 (480×320)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#1a1a1a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; font-family:sans-serif; }
+  h1 { color:#555; font-size:13px; font-weight:400; margin-bottom:12px; letter-spacing:1px; }
+
+  /* ── PAINEL ── */
+  #painel {
+    background:#000;
+    width:480px; height:320px;
+    border:2px solid #2a2a2a;
+    border-radius:4px;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+  }
+
+  /* ── TIPOGRAFIA ── */
+  .seg { font-family:'Courier New',monospace; font-weight:700; color:#ff6a00; line-height:1; }
+  .seg-sm { font-family:'Courier New',monospace; font-weight:700; color:#e0a000; line-height:1; }
+  .unit { font-size:11px; color:#666; font-family:'Courier New',monospace; }
+  .ind-label { font-size:9px; color:#444; font-family:'Courier New',monospace; }
+
+  /* ── SEPARADORES ── */
+  .dv { width:1px; background:#1a1a1a; }
+  .dh { height:1px; background:#1a1a1a; }
+
+  /* ── BARRA DE PROGRESSO ── */
+  .bar-bg { background:#111; border-radius:3px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; transition:width .3s; }
+
+  /* ── INDICADORES (pontos) ── */
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .dot-off { background:#1a1a1a; }
+
+  /* ── PISCA ── */
+  .blink { animation: blink .8s step-start infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+
+  /* ── COLUNAS ── */
+  #col-vel {
+    width:200px;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:10px 6px;
+  }
+  #col-right {
+    flex:1; display:flex; flex-direction:column;
+  }
+
+  /* ── LINHAS DENTRO DA COLUNA DIREITA ── */
+  #row-rpm-temp { display:flex; height:90px; }
+  #row-bat-comb-odo { display:flex; height:70px; }
+  #row-trip-hora-ind { display:flex; height:60px; }
+  #row-status { display:flex; height:40px; align-items:center; justify-content:space-between; padding:0 10px; }
+
+  .cell {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:6px;
+  }
+  .cell-sm { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4px; }
+
+  /* ── MARCHA ── */
+  #marcha-box {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:6px; width:60px;
+  }
+
+  /* ── CONTROLES DE SIMULAÇÃO ── */
+  #controls {
+    margin-top:14px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:520px;
+  }
+  button {
+    font-size:12px; padding:5px 12px; cursor:pointer;
+    border-radius:6px; background:#111; border:1px solid #333;
+    color:#888; font-family:monospace;
+    transition:background .15s, color .15s;
+  }
+  button:hover { background:#1f1f1f; color:#ccc; }
+  button.active { border-color:#ff6a00; color:#ff6a00; }
+
+  #nota {
+    margin-top:16px; font-size:11px; color:#444;
+    text-align:center; max-width:480px; line-height:1.6;
+  }
+</style>
+</head>
+<body>
+
+<h1>PAINEL TÉNÉRÉ 250 · NEXTION NX4832F035 · 480 × 320 px</h1>
+
+<div id="painel">
+
+  <!-- COLUNA ESQUERDA: VELOCIDADE GRANDE -->
+  <div id="col-vel">
+    <div class="unit">km/h</div>
+    <div class="seg" id="vel" style="font-size:72px;letter-spacing:-2px">087</div>
+    <div style="width:160px;margin-top:8px">
+      <div class="bar-bg" style="height:6px">
+        <div class="bar-fill" id="vel-bar" style="width:43%;background:#ff6a00"></div>
+      </div>
+    </div>
+    <div style="margin-top:6px;display:flex;gap:4px;align-items:center;width:160px">
+      <div class="unit" style="font-size:9px">0</div>
+      <div style="flex:1;height:1px;background:#1a1a1a"></div>
+      <div class="unit" style="font-size:9px">200</div>
+    </div>
+    <!-- MARCHA ESTIMADA -->
+    <div style="margin-top:12px;text-align:center">
+      <div class="unit" style="font-size:9px">marcha</div>
+      <div class="seg" id="marcha-num" style="font-size:36px;color:#e0a000">3</div>
+    </div>
+  </div>
+
+  <div class="dv"></div>
+
+  <!-- COLUNA DIREITA -->
+  <div id="col-right">
+
+    <!-- LINHA 1: RPM + TEMPERATURA -->
+    <div id="row-rpm-temp">
+      <div class="cell">
+        <div class="unit">RPM</div>
+        <div class="seg-sm" id="rpm" style="font-size:28px">4200</div>
+        <div style="width:100%;margin-top:4px">
+          <div class="bar-bg" style="height:4px">
+            <div class="bar-fill" id="rpm-bar" style="width:55%;background:#e0a000"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:2px">
+            <div class="unit" style="font-size:8px">0</div>
+            <div class="unit" style="font-size:8px;color:#c0392b">8000</div>
+          </div>
+        </div>
+      </div>
+      <div class="dv"></div>
+      <div class="cell">
+        <div class="unit">temp motor</div>
+        <div class="seg-sm" id="temp" style="font-size:28px">078</div>
+        <div class="unit">°C</div>
+      </div>
+    </div>
+
+    <div class="dh"></div>
+
+    <!-- LINHA 2: BATERIA + COMBUSTÍVEL + HODÔMETRO -->
+    <div id="row-bat-comb-odo">
+      <div class="cell-sm">
+        <div class="unit">bateria</div>
+        <div class="seg-sm" id="bat" style="font-size:22px">13.1</div>
+        <div class="unit">V</div>
+      </div>
+      <div class="dv"></div>
+      <div class="cell-sm">
+        <div class="unit">combustível</div>
+        <div style="display:flex;gap:3px;margin-top:5px">
+          <div class="dot" id="c1" style="background:#ff6a00"></div>
+          <div class="dot" id="c2" style="background:#ff6a00"></div>
+          <div class="dot" id="c3" style="background:#ff6a00"></div>
+          <div class="dot dot-off" id="c4"></div>
+        </div>
+      </div>
+      <div class="dv"></div>
+      <div class="cell-sm">
+        <div class="unit">hodômetro</div>
+        <div class="seg-sm" id="odo" style="font-size:16px">12487</div>
+        <div class="unit">km</div>
+      </div>
+    </div>
+
+    <div class="dh"></div>
+
+    <!-- LINHA 3: PARCIAL + HORA + INDICADORES -->
+    <div id="row-trip-hora-ind">
+      <div class="cell-sm">
+        <div class="unit">parcial</div>
+        <div class="seg-sm" id="trip" style="font-size:17px">0342</div>
+        <div class="unit">km</div>
+      </div>
+      <div class="dv"></div>
+      <div class="cell-sm">
+        <div class="unit">hora</div>
+        <div class="seg-sm" id="hora" style="font-size:20px">14:35</div>
+      </div>
+      <div class="dv"></div>
+      <!-- INDICADORES -->
+      <div class="cell-sm" style="flex-direction:row;gap:8px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="dot blink" id="seta-e" style="background:#00cc44"></div>
+          <div class="ind-label">◄</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="dot dot-off" id="neutro"></div>
+          <div class="ind-label">N</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="dot dot-off" id="farol"></div>
+          <div class="ind-label">hi</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="dot dot-off" id="seta-d"></div>
+          <div class="ind-label">►</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dh"></div>
+
+    <!-- LINHA 4: STATUS -->
+    <div id="row-status">
+      <div class="unit" id="status-esq" style="font-size:10px;color:#333">ténéré 250 · 2011</div>
+      <div class="unit" id="status-dir" style="font-size:10px;color:#2a2a2a">v1.0</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTROLES DE SIMULAÇÃO -->
+<div id="controls">
+  <button onclick="simVel()" id="btn-vel">▶ Acelerar</button>
+  <button onclick="simFreio()" id="btn-freio">■ Frear</button>
+  <button onclick="toggleSeta('e')" id="btn-se">◄ Seta esq</button>
+  <button onclick="toggleSeta('d')" id="btn-sd">► Seta dir</button>
+  <button onclick="toggleNeutro()" id="btn-n">N Neutro</button>
+  <button onclick="toggleFarol()" id="btn-f">↑ Farol alto</button>
+  <button onclick="resetAll()">↺ Resetar</button>
+</div>
+
+<div id="nota">
+  Este arquivo é a referência visual do painel. Resolução exata: 480×320 px.<br>
+  Use como guia para montar os componentes no Nextion Editor.<br>
+  Cores: fundo #000000 · velocidade #ff6a00 · demais #e0a000 · separadores #1a1a1a
+</div>
+
+<script>
+  let velVal=87, rpmVal=4200, tempVal=78, batVal=13.1;
+  let accelInterval=null;
+  let setaEOn=true, setaDOn=false, neutroOn=false, farolOn=false;
+
+  // Relações de marcha estimadas para Ténéré 250
+  // ratio = vel/rpm * 1000 (valor empírico calibrado)
+  function estimarMarcha(vel, rpm) {
+    if (rpm < 800 || vel < 2) return 'N';
+    const ratio = (vel / rpm) * 1000;
+    if (ratio < 3.2)  return '1';
+    if (ratio < 5.5)  return '2';
+    if (ratio < 7.8)  return '3';
+    if (ratio < 10.2) return '4';
+    if (ratio < 13.0) return '5';
+    return '6';
+  }
+
+  function pad3(n) { return String(Math.round(n)).padStart(3,'0'); }
+
+  function update() {
+    document.getElementById('vel').textContent = pad3(velVal);
+    document.getElementById('vel-bar').style.width = Math.min(100, velVal/200*100) + '%';
+    document.getElementById('rpm').textContent = Math.round(rpmVal);
+    document.getElementById('rpm-bar').style.width = Math.min(100, rpmVal/8000*100) + '%';
+    document.getElementById('temp').textContent = pad3(tempVal);
+    document.getElementById('bat').textContent = batVal.toFixed(1);
+    const m = estimarMarcha(velVal, rpmVal);
+    document.getElementById('marcha-num').textContent = m;
+    document.getElementById('marcha-num').style.color = m==='N' ? '#00cc44' : '#e0a000';
+  }
+
+  function simVel() {
+    if (accelInterval) {
+      clearInterval(accelInterval);
+      accelInterval = null;
+      document.getElementById('btn-vel').classList.remove('active');
+      document.getElementById('btn-vel').textContent = '▶ Acelerar';
+      return;
+    }
+    document.getElementById('btn-vel').classList.add('active');
+    document.getElementById('btn-vel').textContent = '■ Parar';
+    accelInterval = setInterval(() => {
+      velVal = Math.min(160, velVal + 2);
+      rpmVal = Math.min(7800, 1200 + velVal * 40);
+      tempVal = Math.min(105, tempVal + 0.2);
+      update();
+    }, 100);
+  }
+
+  function simFreio() {
+    if (accelInterval) { clearInterval(accelInterval); accelInterval=null; }
+    document.getElementById('btn-vel').classList.remove('active');
+    document.getElementById('btn-vel').textContent = '▶ Acelerar';
+    const t = setInterval(() => {
+      velVal = Math.max(0, velVal - 8);
+      rpmVal = Math.max(900, rpmVal - 350);
+      update();
+      if (velVal <= 0) clearInterval(t);
+    }, 100);
+  }
+
+  function toggleSeta(lado) {
+    if (lado === 'e') {
+      setaEOn = !setaEOn; setaDOn = false;
+      const e = document.getElementById('seta-e');
+      const d = document.getElementById('seta-d');
+      e.style.background = setaEOn ? '#00cc44' : '#1a1a1a';
+      setaEOn ? e.classList.add('blink') : e.classList.remove('blink');
+      d.style.background = '#1a1a1a'; d.classList.remove('blink');
+    } else {
+      setaDOn = !setaDOn; setaEOn = false;
+      const d = document.getElementById('seta-d');
+      const e = document.getElementById('seta-e');
+      d.style.background = setaDOn ? '#00cc44' : '#1a1a1a';
+      setaDOn ? d.classList.add('blink') : d.classList.remove('blink');
+      e.style.background = '#1a1a1a'; e.classList.remove('blink');
+    }
+  }
+
+  function toggleNeutro() {
+    neutroOn = !neutroOn;
+    document.getElementById('neutro').style.background = neutroOn ? '#00cc44' : '#1a1a1a';
+    document.getElementById('btn-n').classList.toggle('active', neutroOn);
+  }
+
+  function toggleFarol() {
+    farolOn = !farolOn;
+    document.getElementById('farol').style.background = farolOn ? '#4488ff' : '#1a1a1a';
+    document.getElementById('btn-f').classList.toggle('active', farolOn);
+  }
+
+  function resetAll() {
+    if (accelInterval) { clearInterval(accelInterval); accelInterval=null; }
+    velVal=0; rpmVal=900; tempVal=60; batVal=12.8;
+    setaEOn=false; setaDOn=false; neutroOn=false; farolOn=false;
+    ['seta-e','seta-d','neutro','farol'].forEach(id => {
+      document.getElementById(id).style.background='#1a1a1a';
+      document.getElementById(id).classList.remove('blink');
+    });
+    ['btn-vel','btn-n','btn-f'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+    document.getElementById('btn-vel').textContent = '▶ Acelerar';
+    update();
+  }
+
+  // Relógio
+  function updateHora() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('hora').textContent = h + ':' + m;
+  }
+  updateHora();
+  setInterval(updateHora, 10000);
+
+  // Pisca dos dois pontos do relógio
+  let colon = true;
+  setInterval(() => {
+    colon = !colon;
+    document.getElementById('hora').style.opacity = colon ? 1 : 0.4;
+  }, 500);
+
+  update();
+</script>
+</body>
+</html>
