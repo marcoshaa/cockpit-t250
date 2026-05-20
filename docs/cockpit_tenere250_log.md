@@ -436,3 +436,75 @@ void loop() {
 ---
 
 *Gerado com Claude (Anthropic) — maio de 2026*
+
+---
+
+## Feature futura — Sistema de alarme e antifurto
+
+> **Prompt de referência** — use este texto para retomar o desenvolvimento desta feature com a IA quando estiver pronto.
+
+---
+
+```
+Estou desenvolvendo um cockpit digital para uma Yamaha Ténéré 250 ano 2011.
+O sistema atual é composto por:
+
+- Arduino Nano (microcontrolador principal)
+- Tela Nextion NX4832F035 (480×320 px, comunicação serial UART)
+- Regulador de tensão LM2596 (12V → 5V)
+- Conector Fogopin 5 pinos (interface com a moto)
+
+O Arduino já lê: velocidade (reed switch, pino D2), RPM (bobina via
+optoacoplador PC817, pino D3), temperatura NTC (A0), tensão da bateria
+por divisor resistivo R1=30kΩ R2=10kΩ (A1), nível de combustível (A2)
+e indicadores digitais de seta/neutro/farol (D4–D6). Comunica com a
+Nextion via TX/RX a 9600 baud.
+
+Quero adicionar um sistema de alarme e antifurto com as seguintes
+características:
+
+HARDWARE ADICIONAL PLANEJADO:
+- Módulo Bluetooth HC-05 ou HC-06 (pareamento com celular do dono)
+- Módulo RFID RC522 com cartão/chaveiro NFC (segunda chave eletrônica)
+- Sirene piezoelétrica 12V acionada por relé 5V
+- Fonte auxiliar (bateria 18650 + módulo TP4056 ou supercapacitor)
+  para manter o Arduino ativo com a chave da moto desligada
+
+LÓGICA DE FUNCIONAMENTO DESEJADA:
+1. Ao ligar a chave da moto, o Arduino aguarda 15 segundos para que
+   o dono apresente o cartão RFID ou tenha o celular pareado por
+   Bluetooth no alcance (~10 metros). Se nenhum dos dois for detectado,
+   aciona sirene + pisca indicadores da Nextion como alerta visual.
+2. Com a moto desligada e fonte auxiliar ativa, o sistema monitora
+   o sensor de movimento ou acelerômetro (a definir — pode ser MPU6050).
+   Qualquer movimentação sem RFID válido nos últimos 30s dispara o alarme.
+3. O Bluetooth funciona como monitoramento de perímetro: se o celular
+   pareado sair do alcance por mais de 20 segundos com a moto parada,
+   emite aviso sonoro curto (não alarme completo — só alerta).
+4. O desarme deve ser possível por RFID (encostar o cartão) OU por
+   comando serial Bluetooth vindo do celular.
+5. A Nextion deve exibir o status do alarme (armado/desarmado) em uma
+   área da tela, e piscar em vermelho quando em alerta.
+
+RESTRIÇÕES TÉCNICAS:
+- O Arduino Nano tem pinos limitados — mapear conflitos com os pinos
+  já usados pelo sistema principal antes de propor a pinagem do alarme.
+- O HC-05 usa serial (TX/RX) — o mesmo barramento da Nextion. Avaliar
+  uso de SoftwareSerial para um dos dois, ou multiplexação.
+- O sistema de alarme não pode interferir na leitura dos sensores
+  principais (velocidade, RPM) que usam interrupções externas INT0/INT1.
+- A fonte auxiliar deve ser carregada automaticamente quando a chave
+  da moto está ligada.
+
+ENTREGÁVEIS ESPERADOS:
+1. Esquema de pinagem completo do Arduino Nano com todos os módulos
+   (sistema principal + alarme), resolvendo conflitos de pinos.
+2. Código Arduino (.ino) integrando alarme ao código principal já
+   existente, sem quebrar as leituras de sensores.
+3. Atualização do layout da Nextion (480×320 px) com área de status
+   do alarme e indicação visual de alerta.
+4. Lista de materiais (BOM) completa e atualizada com os novos módulos.
+5. Diagrama de fluxo da lógica de arme/desarme.
+```
+
+---
